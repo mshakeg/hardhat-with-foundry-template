@@ -17,7 +17,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     value: lockedAmount,
   });
 
-  console.log(`Lock contract: `, lock.address);
+  console.log(`Lock contract: `, lock.address, "with unlock time:", UNLOCK_IN_X_DAYS);
 };
 export default func;
 func.id = "deploy_lock"; // id required to prevent reexecution

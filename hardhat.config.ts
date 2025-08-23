@@ -1,98 +1,111 @@
 import "@nomicfoundation/hardhat-toolbox";
+import { config as dotenvConfig } from "dotenv";
 import "hardhat-deploy";
 import type { HardhatUserConfig } from "hardhat/config";
 import { vars } from "hardhat/config";
-import type { NetworkUserConfig } from "hardhat/types";
+import type { HardhatNetworkChainsUserConfig, HardhatNetworkUserConfig } from "hardhat/types";
 
+import { SupportedChainId, chainNames, isValidChainId } from "./config/chains";
+import { getExplorerConfiguration } from "./config/explorers";
+import { getForkChainConfig, getNetworksConfiguration } from "./config/networks";
 import "./tasks/accounts";
 import "./tasks/lock";
 
-// Run 'npx hardhat vars setup' to see the list of variables that need to be set
+// Load environment variables from .env file
+dotenvConfig();
 
-const mnemonic: string = vars.get("MNEMONIC");
-const infuraApiKey: string = vars.get("INFURA_API_KEY");
+// Run 'bunx hardhat vars setup' to see the list of variables that need to be set
 
-const chainIds = {
-  "arbitrum-mainnet": 42161,
-  avalanche: 43114,
-  bsc: 56,
-  ganache: 1337,
-  hardhat: 31337,
-  mainnet: 1,
-  "optimism-mainnet": 10,
-  "polygon-mainnet": 137,
-  "polygon-mumbai": 80001,
-  sepolia: 11155111,
+// Runtime validation for required environment variables
+function validateRequiredVar(name: string, value: string): string {
+  if (!value) {
+    throw new Error(`Required environment variable ${name} is not set. Run 'bunx hardhat vars setup' to configure.`);
+  }
+  return value;
+}
+
+// Support both mnemonic and private key for deployment
+const mnemonic: string | undefined = vars.get("MNEMONIC");
+const deployerPrivateKey: string | undefined = vars.get("DEPLOYER_PRIVATE_KEY");
+const infuraApiKey: string = validateRequiredVar("INFURA_API_KEY", vars.get("INFURA_API_KEY"));
+
+// Validate that either mnemonic or deployer private key is provided
+if (!mnemonic && !deployerPrivateKey) {
+  throw new Error("Either MNEMONIC or DEPLOYER_PRIVATE_KEY must be set. Run 'bunx hardhat vars setup' to configure.");
+}
+
+if (mnemonic && deployerPrivateKey) {
+  console.warn("Both MNEMONIC and DEPLOYER_PRIVATE_KEY are set. Using DEPLOYER_PRIVATE_KEY.");
+}
+
+// Environment variables for conditional network configuration
+const enableForking: boolean = process.env.ENABLE_FORKING === "true";
+const CHAIN_ID = process.env.CHAIN_ID ? parseInt(process.env.CHAIN_ID) : undefined;
+
+if (enableForking && !isValidChainId(CHAIN_ID)) {
+  throw new Error(`CHAIN_ID ${CHAIN_ID} is not supported. Set a valid CHAIN_ID when ENABLE_FORKING=true.`);
+}
+
+const forkChain: SupportedChainId | undefined = CHAIN_ID;
+
+if (enableForking && forkChain === SupportedChainId.HARDHAT) {
+  throw new Error("Cannot fork HARDHAT network. Use a different CHAIN_ID or disable forking.");
+}
+
+console.log("Network Mode:", enableForking ? "Forking" : "Pure Hardhat");
+if (enableForking && forkChain) {
+  console.log("Fork Chain:", chainNames[forkChain], `(${forkChain})`);
+}
+
+// Define the common hardforkHistory for all chains
+const commonHardforkHistory = {
+  london: 1,
 };
 
-function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
-  let jsonRpcUrl: string;
-  switch (chain) {
-    case "avalanche":
-      jsonRpcUrl = "https://api.avax.network/ext/bc/C/rpc";
-      break;
-    case "bsc":
-      jsonRpcUrl = "https://bsc-dataseed1.binance.org";
-      break;
-    default:
-      jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
-  }
-  return {
-    accounts: {
-      count: 10,
-      mnemonic,
-      path: "m/44'/60'/0'/0",
-    },
-    chainId: chainIds[chain],
-    url: jsonRpcUrl,
-  };
-}
+// Dynamically generate the chains configuration for the Hardhat network
+const chainsConfiguration: HardhatNetworkChainsUserConfig = Object.values(SupportedChainId)
+  .filter((value): value is SupportedChainId => typeof value === "number") // Filter to only include numeric values
+  .reduce<HardhatNetworkChainsUserConfig>((chains, chainId) => {
+    chains[chainId] = {
+      hardforkHistory: commonHardforkHistory,
+    };
+    return chains;
+  }, {});
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   namedAccounts: {
     deployer: 0,
   },
-  etherscan: {
-    apiKey: {
-      arbitrumOne: vars.get("ARBISCAN_API_KEY", ""),
-      avalanche: vars.get("SNOWTRACE_API_KEY", ""),
-      bsc: vars.get("BSCSCAN_API_KEY", ""),
-      mainnet: vars.get("ETHERSCAN_API_KEY", ""),
-      optimisticEthereum: vars.get("OPTIMISM_API_KEY", ""),
-      polygon: vars.get("POLYGONSCAN_API_KEY", ""),
-      polygonMumbai: vars.get("POLYGONSCAN_API_KEY", ""),
-      sepolia: vars.get("ETHERSCAN_API_KEY", ""),
-    },
-  },
+  etherscan: getExplorerConfiguration(),
   gasReporter: {
     currency: "USD",
-    enabled: process.env.REPORT_GAS ? true : false,
+    enabled: Boolean(process.env.REPORT_GAS),
     excludeContracts: [],
     src: "./contracts",
   },
   networks: {
+    // Generate all supported networks dynamically
+    ...getNetworksConfiguration(mnemonic, deployerPrivateKey, infuraApiKey),
+
+    // Special handling for hardhat network with conditional forking
     hardhat: {
-      accounts: {
-        mnemonic,
-      },
-      chainId: chainIds.hardhat,
-    },
-    ganache: {
-      accounts: {
-        mnemonic,
-      },
-      chainId: chainIds.ganache,
-      url: "http://localhost:8545",
-    },
-    arbitrum: getChainConfig("arbitrum-mainnet"),
-    avalanche: getChainConfig("avalanche"),
-    bsc: getChainConfig("bsc"),
-    mainnet: getChainConfig("mainnet"),
-    optimism: getChainConfig("optimism-mainnet"),
-    "polygon-mainnet": getChainConfig("polygon-mainnet"),
-    "polygon-mumbai": getChainConfig("polygon-mumbai"),
-    sepolia: getChainConfig("sepolia"),
+      chainsConfiguration, // necessary for functional network forking for some reason?
+      accounts: deployerPrivateKey
+        ? [
+            {
+              privateKey: deployerPrivateKey,
+              balance: "1000000000000000000000", // 1000 ether
+            },
+            {
+              privateKey: "0x1111111111111111111111111111111111111111111111111111111111111111", // another test account
+              balance: "1000000000000000000000", // 1000 ether
+            },
+          ]
+        : { mnemonic: mnemonic! },
+      chainId: enableForking ? (forkChain! as number) : (SupportedChainId.HARDHAT as number),
+      forking: enableForking ? getForkChainConfig(forkChain!, infuraApiKey) : undefined,
+    } as HardhatNetworkUserConfig,
   },
   paths: {
     artifacts: "./artifacts",
