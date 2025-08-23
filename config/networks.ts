@@ -1,6 +1,13 @@
 import type { NetworkUserConfig } from "hardhat/types";
 
-import { SupportedChainId, chainNames, customRpcUrls, infuraSupportedChains, isValidChainId } from "./chains";
+import {
+  AllChainIds,
+  SupportedChainId,
+  chainNames,
+  customRpcUrls,
+  infuraSupportedChains,
+  isValidChainId,
+} from "./chains";
 
 // Fork block numbers to block pin at (optional)
 const forkBlockNumbers: Partial<Record<SupportedChainId, number>> = {
@@ -78,7 +85,7 @@ export function getNetworksConfiguration(
   const networks = Object.entries(chainNames).reduce(
     (networks, [chainIdString, networkName]) => {
       const chainId = Number(chainIdString);
-      if (isValidChainId(chainId) && chainId !== SupportedChainId.HARDHAT && chainId !== SupportedChainId.GANACHE) {
+      if (isValidChainId(chainId) && chainId !== AllChainIds.HARDHAT && chainId !== AllChainIds.GANACHE) {
         networks[networkName] = getChainConfig(chainId as SupportedChainId, mnemonic, deployerPrivateKey, infuraApiKey);
       }
       return networks;
@@ -87,7 +94,7 @@ export function getNetworksConfiguration(
   );
 
   // Add Ganache local network
-  networks.ganache = getChainConfig(SupportedChainId.GANACHE, mnemonic, deployerPrivateKey, infuraApiKey);
+  networks.ganache = getChainConfig(AllChainIds.GANACHE, mnemonic, deployerPrivateKey, infuraApiKey);
 
   return networks;
 }

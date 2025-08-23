@@ -1,3 +1,4 @@
+import "@nomicfoundation/hardhat-foundry";
 import "@nomicfoundation/hardhat-toolbox";
 import { config as dotenvConfig } from "dotenv";
 import "hardhat-deploy";
@@ -5,7 +6,7 @@ import type { HardhatUserConfig } from "hardhat/config";
 import { vars } from "hardhat/config";
 import type { HardhatNetworkChainsUserConfig, HardhatNetworkUserConfig } from "hardhat/types";
 
-import { SupportedChainId, chainNames, isValidChainId } from "./config/chains";
+import { AllChainIds, SupportedChainId, chainNames, isValidChainId } from "./config/chains";
 import { getExplorerConfiguration } from "./config/explorers";
 import { getForkChainConfig, getNetworksConfiguration } from "./config/networks";
 import "./tasks/accounts";
@@ -48,7 +49,7 @@ if (enableForking && !isValidChainId(CHAIN_ID)) {
 
 const forkChain: SupportedChainId | undefined = CHAIN_ID;
 
-if (enableForking && forkChain === SupportedChainId.HARDHAT) {
+if (enableForking && forkChain === AllChainIds.HARDHAT) {
   throw new Error("Cannot fork HARDHAT network. Use a different CHAIN_ID or disable forking.");
 }
 
@@ -63,7 +64,7 @@ const commonHardforkHistory = {
 };
 
 // Dynamically generate the chains configuration for the Hardhat network
-const chainsConfiguration: HardhatNetworkChainsUserConfig = Object.values(SupportedChainId)
+const chainsConfiguration: HardhatNetworkChainsUserConfig = Object.values(AllChainIds)
   .filter((value): value is SupportedChainId => typeof value === "number") // Filter to only include numeric values
   .reduce<HardhatNetworkChainsUserConfig>((chains, chainId) => {
     chains[chainId] = {
@@ -103,22 +104,23 @@ const config: HardhatUserConfig = {
             },
           ]
         : { mnemonic: mnemonic! },
-      chainId: enableForking ? (forkChain! as number) : (SupportedChainId.HARDHAT as number),
+      chainId: enableForking ? (forkChain! as number) : (AllChainIds.HARDHAT as number),
       forking: enableForking ? getForkChainConfig(forkChain!, infuraApiKey) : undefined,
     } as HardhatNetworkUserConfig,
   },
   paths: {
-    artifacts: "./artifacts",
-    cache: "./cache",
+    artifacts: "./out", // Use Foundry's output directory
+    cache: "./cache_forge", // Use Foundry's cache directory
     sources: "./contracts",
     tests: "./test",
   },
   solidity: {
-    version: "0.8.19",
+    version: "0.8.20",
     settings: {
       metadata: {
         // Not including the metadata hash
         // https://github.com/paulrberg/hardhat-template/issues/31
+        // Must match foundry.toml bytecode_hash setting for cross-tool compatibility(particularly contract verification)
         bytecodeHash: "none",
       },
       // Disable the optimizer when debugging

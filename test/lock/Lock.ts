@@ -66,9 +66,10 @@ describe("Lock", function () {
         await time.increaseTo(this.unlockTime);
 
         // We use lock.connect() to send a transaction from another account
+        // OpenZeppelin's Ownable uses OwnableUnauthorizedAccount error
         await expect(this.lock.connect(this.otherAccount).withdraw()).to.be.revertedWithCustomError(
           this.lock,
-          "NotOwner",
+          "OwnableUnauthorizedAccount",
         );
       });
 

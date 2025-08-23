@@ -1,206 +1,198 @@
-# Hardhat Template [![Open in Gitpod][gitpod-badge]][gitpod] [![Github Actions][gha-badge]][gha] [![Hardhat][hardhat-badge]][hardhat] [![License: MIT][license-badge]][license]
+# Hardhat + Foundry Hybrid Template [![Github Actions][gha-badge]][gha] [![Hardhat][hardhat-badge]][hardhat] [![Foundry][foundry-badge]][foundry] [![License: MIT][license-badge]][license]
 
-[gitpod]: https://gitpod.io/#https://github.com/paulrberg/hardhat-template
-[gitpod-badge]: https://img.shields.io/badge/Gitpod-Open%20in%20Gitpod-FFB45B?logo=gitpod
 [gha]: https://github.com/paulrberg/hardhat-template/actions
 [gha-badge]: https://github.com/paulrberg/hardhat-template/actions/workflows/ci.yml/badge.svg
 [hardhat]: https://hardhat.org/
 [hardhat-badge]: https://img.shields.io/badge/Built%20with-Hardhat-FFDB1C.svg
+[foundry]: https://getfoundry.sh/
+[foundry-badge]: https://img.shields.io/badge/Built%20with-Foundry-FFFBF0.svg
 [license]: https://opensource.org/licenses/MIT
 [license-badge]: https://img.shields.io/badge/License-MIT-blue.svg
 
-A Hardhat-based template for developing Solidity smart contracts, with sensible defaults.
+A hybrid template combining the best of **Hardhat** and **Foundry** for developing Solidity smart contracts, with modern tooling and sensible defaults.
 
-- [Hardhat](https://github.com/nomiclabs/hardhat): compile, run and test smart contracts
-- [TypeChain](https://github.com/ethereum-ts/TypeChain): generate TypeScript bindings for smart contracts
-- [Ethers](https://github.com/ethers-io/ethers.js/): renowned Ethereum library and wallet implementation
-- [Solhint](https://github.com/protofire/solhint): code linter
-- [Solcover](https://github.com/sc-forks/solidity-coverage): code coverage
-- [Prettier Plugin Solidity](https://github.com/prettier-solidity/prettier-plugin-solidity): code formatter
+## ✨ Features
 
-## Getting Started
+### 🔧 **Dual Toolchain Support**
+- **[Hardhat](https://hardhat.org/)**: TypeScript integration, deployment scripts, verification
+- **[Foundry](https://getfoundry.sh/)**: Fast compilation, comprehensive testing, gas optimization
 
-Click the [`Use this template`](https://github.com/paulrberg/hardhat-template/generate) button at the top of the page to
-create a new repository with this repo as the initial state.
+### 📦 **Modern Dependency Management**
+- **[Soldeer](https://soldeer.xyz/)**: Native Solidity package manager for contract dependencies
+- **OpenZeppelin Contracts**: Installed via Soldeer for secure, tested contract implementations
 
-## Features
+### 🧪 **Comprehensive Testing**
+- **Hardhat Tests**: TypeScript-based tests with ethers.js integration
+- **Foundry Tests**: High-performance Solidity tests with fuzz testing and gas benchmarking
 
-This template builds upon the frameworks and libraries mentioned above, so for details about their specific features,
-please consult their respective documentations.
+### 🚀 **Deployment Options**
+- **Hardhat Deploy**: Feature-rich deployment system with migrations
+- **Foundry Scripts**: Secure deployment with Cast wallet integration
 
-For example, for Hardhat, you can refer to the [Hardhat Tutorial](https://hardhat.org/tutorial) and the
-[Hardhat Docs](https://hardhat.org/docs). You might be in particular interested in reading the
-[Testing Contracts](https://hardhat.org/tutorial/testing-contracts) section.
+### 🛠️ **Developer Experience**
+- **ESLint v9**: Modern flat config with TypeScript support
+- **Forge Formatting**: Consistent Solidity code style
+- **Cross-tool Compatibility**: Bytecode alignment for seamless verification
+- **TypeChain**: Generate TypeScript bindings from Foundry artifacts
 
-### Sensible Defaults
+## 🚀 Quick Start
 
-This template comes with sensible default configurations in the following files:
+### Prerequisites
+- [Bun](https://bun.sh/) (recommended) or Node.js 18+
+- [Foundry](https://getfoundry.sh/) - Install with: `curl -L https://foundry.paradigm.xyz | bash`
 
-```text
-├── .editorconfig
-├── .eslintignore
-├── .eslintrc.yml
-├── .gitignore
-├── .prettierignore
-├── .prettierrc.yml
-├── .solcover.js
-├── .solhint.json
-└── hardhat.config.ts
-```
+### Installation
 
-### VSCode Integration
+1. **Use this template**
+   ```bash
+   # Click "Use this template" button above or clone directly
+   git clone <your-repo-url>
+   cd <your-repo-name>
+   ```
 
-This template is IDE agnostic, but for the best user experience, you may want to use it in VSCode alongside Nomic
-Foundation's [Solidity extension](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity).
+2. **Install dependencies**
+   ```bash
+   bun install  # or npm install
+   ```
 
-### GitHub Actions
+3. **Set up configuration**
+   ```bash
+   bunx hardhat vars setup
+   # Set required variables: INFURA_API_KEY, MNEMONIC or DEPLOYER_PRIVATE_KEY
+   ```
 
-This template comes with GitHub Actions pre-configured. Your contracts will be linted and tested on every push and pull
-request made to the `main` branch.
+## 📖 Usage
 
-Note though that to make this work, you must use your `INFURA_API_KEY` and your `MNEMONIC` as GitHub secrets.
+### Compilation
+```bash
+# Compile with Foundry (recommended - faster)
+forge build
 
-For more information on how to set up GitHub secrets, check out the
-[docs](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions).
-
-You can edit the CI script in [.github/workflows/ci.yml](./.github/workflows/ci.yml).
-
-## Usage
-
-### Pre Requisites
-
-First, you need to install the dependencies:
-
-```sh
-bun install
-```
-
-Then, you need to set up all the required
-[Hardhat Configuration Variables](https://hardhat.org/hardhat-runner/docs/guides/configuration-variables). You might
-also want to install some that are optional.
-
-To assist with the setup process, run `bunx hardhat vars setup`. To set a particular value, such as a BIP-39 mnemonic
-variable, execute this:
-
-```sh
-bunx hardhat vars set MNEMONIC
-? Enter value: ‣ here is where your twelve words mnemonic should be put my friend
-```
-
-If you do not already have a mnemonic, you can generate one using this [website](https://iancoleman.io/bip39/).
-
-### Compile
-
-Compile the smart contracts with Hardhat:
-
-```sh
+# Compile with Hardhat (includes TypeChain generation)
 bun run compile
 ```
 
-### TypeChain
+### Testing
+```bash
+# Run Foundry tests (with fuzz testing)
+bun run test:foundry
 
-Compile the smart contracts and generate TypeChain bindings:
-
-```sh
-bun run typechain
+# Run Hardhat tests (TypeScript)
+bun run test:hardhat
 ```
 
-### Test
+### Deployment
 
-Run the tests with Hardhat:
-
-```sh
-bun run test
+#### Foundry Deployment (Recommended for Production)
+```bash
+# Deploy using Cast wallets (secure)
+NETWORK=sepolia SENDER=0x... ACCOUNT=my-wallet bun run deploy:foundry
 ```
 
-### Lint Solidity
-
-Lint the Solidity code:
-
-```sh
-bun run lint:sol
+#### Hardhat Deployment
+```bash
+# Deploy using Hardhat Deploy
+bun run deploy:hardhat --network sepolia
 ```
 
-### Lint TypeScript
-
-Lint the TypeScript code:
-
-```sh
-bun run lint:ts
+### Verification
+```bash
+# Verify deployed contracts (works with both deployment methods)
+bun run task:verify
 ```
 
-### Coverage
+### Linting & Formatting
+```bash
+# Lint everything
+bun run lint
 
-Generate the code coverage report:
-
-```sh
-bun run coverage
+# Format code
+bun run format:write
 ```
 
-### Report Gas
+## 🏗️ Project Structure
 
-See the gas usage per unit test and average gas per method call:
-
-```sh
-REPORT_GAS=true bun run test
+```text
+├── contracts/          # Solidity contracts
+├── script/             # Foundry deployment scripts
+├── test/
+│   ├── foundry/        # Foundry tests (.sol)
+│   └── lock/           # Hardhat tests (.ts)
+├── deploy/             # Hardhat deployment scripts
+├── tasks/              # Hardhat tasks
+├── config/             # Network and chain configurations
+├── foundry.toml        # Foundry configuration
+├── hardhat.config.ts   # Hardhat configuration
+└── eslint.config.js    # ESLint v9 configuration
 ```
 
-### Clean
+## 🔧 Available Scripts
 
-Delete the smart contract artifacts, the coverage reports and the Hardhat cache:
+### Testing
+- `bun run test:foundry` - Run Foundry tests
+- `bun run test:hardhat` - Run Hardhat tests
 
-```sh
-bun run clean
-```
+### Deployment
+- `bun run deploy:foundry` - Deploy with Foundry
+- `bun run deploy:hardhat` - Deploy with Hardhat
 
-### Deploy
+### Development
+- `bun run compile` - Compile contracts
+- `bun run lint` - Lint all code
+- `bun run format:write` - Format all code
+- `bun run clean` - Clean build artifacts
 
-Deploy the contracts to Hardhat Network:
+### Documentation
+- `forge doc` - Generate documentation from NatSpec
 
-```sh
-bun run deploy:contracts
-```
+## ⚙️ Configuration
 
-### Tasks
+### Cross-tool Compatibility
+The template ensures bytecode compatibility between Foundry and Hardhat:
+- `foundry.toml`: `bytecode_hash = "none"`
+- `hardhat.config.ts`: `bytecodeHash: "none"`
 
-#### Deploy Lock
+This allows Hardhat to verify contracts deployed with Foundry seamlessly.
 
-Deploy a new instance of the Lock contract via a task:
+### Network Configuration
+Networks are configured in `config/networks.ts` with support for:
+- Mainnet, Polygon, Arbitrum, Optimism
+- Testnets (Sepolia, etc.)
+- Local development (Anvil, Ganache)
 
-```sh
-bun run task:deployLock --unlock 100 --value 0.1
-```
+## 📚 Key Dependencies
 
-### Syntax Highlighting
+### Smart Contract Development
+- **OpenZeppelin Contracts** (via Soldeer)
+- **Forge Standard Library** (via Soldeer)
 
-If you use VSCode, you can get Solidity syntax highlighting with the
-[hardhat-solidity](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity) extension.
+### Development Tools
+- **Hardhat** - Ethereum development environment
+- **Foundry** - Rust-based toolkit
+- **TypeChain** - TypeScript bindings
+- **ESLint v9** - Code linting
+- **Solhint** - Solidity linting
 
-## Using GitPod
+## 🎯 Why This Template?
 
-[GitPod](https://www.gitpod.io/) is an open-source developer platform for remote development.
+### 🏃‍♂️ **Best of Both Worlds**
+- **Foundry**: Lightning-fast compilation and testing
+- **Hardhat**: Rich TypeScript ecosystem and tooling
 
-To view the coverage report generated by `bun run coverage`, just click `Go Live` from the status bar to turn the server
-on/off.
+### 🔒 **Security First**
+- OpenZeppelin contracts via native package manager
+- Secure deployment with Cast wallet integration
+- Comprehensive test coverage
 
-## Local development with Ganache
+### 🚀 **Developer Experience**
+- Modern tooling (ESLint v9, Soldeer, TypeScript 5.9)
+- Cross-compatible bytecode for seamless workflows
+- Extensive documentation and examples
 
-### Install Ganache
+## 🤝 Contributing
 
-```sh
-npm i -g ganache
-```
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Run a Development Blockchain
+## 📄 License
 
-```sh
-ganache -s test
-```
-
-> The `-s test` passes a seed to the local chain and makes it deterministic
-
-Make sure to set the mnemonic in your `.env` file to that of the instance running with Ganache.
-
-## License
-
-This project is licensed under MIT.
+This project is licensed under MIT - see the [LICENSE](LICENSE) file for details.

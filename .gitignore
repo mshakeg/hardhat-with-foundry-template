@@ -5,11 +5,16 @@
 artifacts
 build
 cache
+cache_forge
+cache_hardhat
 coverage
 dist
 node_modules
+out
 types
 deployments
+broadcast
+docs
 
 # files
 *.env
@@ -20,3 +25,7 @@ coverage.json
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+
+
+# Soldeer
+/dependencies

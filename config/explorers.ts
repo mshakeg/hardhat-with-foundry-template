@@ -1,6 +1,6 @@
 import { vars } from "hardhat/config";
 
-import { SupportedChainId, chainNames } from "./chains";
+import { AllChainIds, SupportedChainId, chainNames } from "./chains";
 
 // Explorer provider system interfaces
 type ExplorerType = "etherscan-v2" | "blockscout" | "routescan";
@@ -31,9 +31,9 @@ const explorerProviders: Record<string, ExplorerProvider> = {
     baseURL: "https://api.etherscan.io/v2/api",
     apiKeyVar: "ETHERSCAN_API_KEY",
     supportedChains: [
-      SupportedChainId.ETHEREUM_MAINNET,
-      SupportedChainId.POLYGON_MAINNET,
-      SupportedChainId.SEPOLIA,
+      AllChainIds.ETHEREUM_MAINNET,
+      AllChainIds.POLYGON_MAINNET,
+      AllChainIds.SEPOLIA,
       // Etherscan v2 now supports multiple chains with single API
     ],
     requiresApiKey: true,
@@ -42,11 +42,11 @@ const explorerProviders: Record<string, ExplorerProvider> = {
 
 // Chain-to-explorer mapping with fallbacks
 const chainExplorerMapping: Record<SupportedChainId, string[]> = {
-  [SupportedChainId.ETHEREUM_MAINNET]: ["etherscanV2"],
-  [SupportedChainId.POLYGON_MAINNET]: ["etherscanV2"],
-  [SupportedChainId.SEPOLIA]: ["etherscanV2"],
-  [SupportedChainId.HARDHAT]: [],
-  [SupportedChainId.GANACHE]: [],
+  [AllChainIds.ETHEREUM_MAINNET]: ["etherscanV2"],
+  [AllChainIds.POLYGON_MAINNET]: ["etherscanV2"],
+  [AllChainIds.SEPOLIA]: ["etherscanV2"],
+  [AllChainIds.HARDHAT]: [],
+  [AllChainIds.GANACHE]: [],
 } as const;
 
 // Generate explorer URLs for a chain
@@ -75,11 +75,11 @@ function getExplorerConfig(chainId: SupportedChainId): ChainExplorerConfig | nul
 
 function getEtherscanV2BrowserURL(chainId: SupportedChainId): string {
   switch (chainId) {
-    case SupportedChainId.ETHEREUM_MAINNET:
+    case AllChainIds.ETHEREUM_MAINNET:
       return "https://etherscan.io";
-    case SupportedChainId.SEPOLIA:
+    case AllChainIds.SEPOLIA:
       return "https://sepolia.etherscan.io";
-    case SupportedChainId.POLYGON_MAINNET:
+    case AllChainIds.POLYGON_MAINNET:
       return "https://polygonscan.com";
     default:
       return "https://etherscan.io";
@@ -109,7 +109,7 @@ const explorerApiKeys: Record<string, string> = Object.entries(chainNames).reduc
 );
 
 // Generate custom chains array for hardhat-verify
-const customChainsArray: ChainExplorerConfig[] = Object.values(SupportedChainId)
+const customChainsArray: ChainExplorerConfig[] = Object.values(AllChainIds)
   .filter((chainId): chainId is number => typeof chainId === "number")
   .map((chainId) => getExplorerConfig(chainId as SupportedChainId))
   .filter((config): config is ChainExplorerConfig => config !== null)

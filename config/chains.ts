@@ -15,7 +15,7 @@ export enum LocalChainId {
   GANACHE = 1337,
 }
 
-export const SupportedChainId = {
+export const AllChainIds = {
   ...MainnetChainId,
   ...TestnetChainId,
   ...LocalChainId,
@@ -24,34 +24,34 @@ export const SupportedChainId = {
 export type SupportedChainId = MainnetChainId | TestnetChainId | LocalChainId;
 
 export function isValidChainId(value: number | undefined): value is SupportedChainId {
-  return value !== undefined && Object.values(SupportedChainId).includes(value as SupportedChainId);
+  return value !== undefined && Object.values(AllChainIds).includes(value as SupportedChainId);
 }
 
-export const SUPPORTED_CHAIN_IDS: SupportedChainId[] = Object.values(SupportedChainId).filter(
+export const SUPPORTED_CHAIN_IDS: SupportedChainId[] = Object.values(AllChainIds).filter(
   (value): value is number => typeof value === "number",
 );
 
 // Chain names mapping for network configuration
 export const chainNames: Record<SupportedChainId, string> = {
-  [SupportedChainId.ETHEREUM_MAINNET]: "mainnet",
-  [SupportedChainId.POLYGON_MAINNET]: "polygon-mainnet",
-  [SupportedChainId.SEPOLIA]: "sepolia",
-  [SupportedChainId.HARDHAT]: "hardhat",
-  [SupportedChainId.GANACHE]: "ganache",
+  [AllChainIds.ETHEREUM_MAINNET]: "mainnet",
+  [AllChainIds.POLYGON_MAINNET]: "polygon-mainnet",
+  [AllChainIds.SEPOLIA]: "sepolia",
+  [AllChainIds.HARDHAT]: "hardhat",
+  [AllChainIds.GANACHE]: "ganache",
 } as const;
 
 // Public RPC URLs
 export const customRpcUrls: Record<SupportedChainId, string> = {
-  [SupportedChainId.ETHEREUM_MAINNET]: "https://1rpc.io/eth",
-  [SupportedChainId.POLYGON_MAINNET]: "https://1rpc.io/matic",
-  [SupportedChainId.SEPOLIA]: "https://0xrpc.io/sep",
-  [SupportedChainId.GANACHE]: "http://localhost:8545",
-  [SupportedChainId.HARDHAT]: "",
+  [AllChainIds.ETHEREUM_MAINNET]: "https://1rpc.io/eth",
+  [AllChainIds.POLYGON_MAINNET]: "https://1rpc.io/matic",
+  [AllChainIds.SEPOLIA]: "https://0xrpc.io/sep",
+  [AllChainIds.GANACHE]: "http://localhost:8545",
+  [AllChainIds.HARDHAT]: "",
 } as const;
 
 // Chains that support Infura
 export const infuraSupportedChains: Set<SupportedChainId> = new Set([
-  SupportedChainId.ETHEREUM_MAINNET,
-  SupportedChainId.POLYGON_MAINNET,
-  SupportedChainId.SEPOLIA,
+  AllChainIds.ETHEREUM_MAINNET,
+  AllChainIds.POLYGON_MAINNET,
+  AllChainIds.SEPOLIA,
 ]);

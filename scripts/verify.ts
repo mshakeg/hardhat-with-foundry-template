@@ -21,6 +21,7 @@ async function main() {
 
   try {
     await run("verify:verify", {
+      contract: "contracts/Lock.sol:Lock",
       address: CONTRACT_ADDRESS,
       constructorArguments: [UNLOCK_TIME],
     });

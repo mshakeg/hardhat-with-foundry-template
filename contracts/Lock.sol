@@ -1,36 +1,31 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >=0.8.9;
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 error InvalidUnlockTime(uint256 unlockTime);
-error NotOwner(address owner);
 error UnlockTimeNotReached(uint256 unlockTime);
 
-contract Lock {
-    uint256 public unlockTime;
-    address payable public owner;
+contract Lock is Ownable {
+  uint256 public unlockTime;
 
-    event Withdrawal(uint256 amount, uint256 when);
+  event Withdrawal(uint256 amount, uint256 when);
 
-    constructor(uint256 _unlockTime) payable {
-        if (block.timestamp >= _unlockTime) {
-            revert InvalidUnlockTime(_unlockTime);
-        }
-
-        unlockTime = _unlockTime;
-        owner = payable(msg.sender);
+  constructor(uint256 _unlockTime) payable Ownable(msg.sender) {
+    if (block.timestamp >= _unlockTime) {
+      revert InvalidUnlockTime(_unlockTime);
     }
 
-    function withdraw() public {
-        if (block.timestamp < unlockTime) {
-            revert UnlockTimeNotReached(unlockTime);
-        }
+    unlockTime = _unlockTime;
+  }
 
-        if (msg.sender != owner) {
-            revert NotOwner(owner);
-        }
-
-        emit Withdrawal(address(this).balance, block.timestamp);
-
-        owner.transfer(address(this).balance);
+  function withdraw() public onlyOwner {
+    if (block.timestamp < unlockTime) {
+      revert UnlockTimeNotReached(unlockTime);
     }
+
+    emit Withdrawal(address(this).balance, block.timestamp);
+
+    payable(owner()).transfer(address(this).balance);
+  }
 }
