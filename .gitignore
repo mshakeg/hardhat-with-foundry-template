@@ -10,6 +10,11 @@ dist
 node_modules
 types
 deployments
+broadcast
+dependencies
+cache_forge
+cache_hardhat
+out
 
 # files
 *.env
