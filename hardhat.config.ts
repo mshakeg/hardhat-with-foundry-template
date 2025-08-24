@@ -1,16 +1,16 @@
-import "@nomicfoundation/hardhat-foundry";
-import "@nomicfoundation/hardhat-toolbox";
+// import "@nomicfoundation/hardhat-foundry"; // TODO: Check Hardhat v3 compatibility
+import "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 import { config as dotenvConfig } from "dotenv";
-import "hardhat-deploy";
+// import "hardhat-deploy"; // TODO: Check Hardhat v3 compatibility
 import type { HardhatUserConfig } from "hardhat/config";
-import { vars } from "hardhat/config";
+// import { vars } from "hardhat/config"; // TODO: Update for Hardhat v3
 import type { HardhatNetworkChainsUserConfig, HardhatNetworkUserConfig } from "hardhat/types";
 
-import { AllChainIds, SupportedChainId, chainNames, isValidChainId } from "./config/chains";
-import { getExplorerConfiguration } from "./config/explorers";
-import { getForkChainConfig, getNetworksConfiguration } from "./config/networks";
-import "./tasks/accounts";
-import "./tasks/lock";
+import { AllChainIds, SupportedChainId, chainNames, isValidChainId } from "./config/chains.js";
+import { getExplorerConfiguration } from "./config/explorers.js";
+import { getForkChainConfig, getNetworksConfiguration } from "./config/networks.js";
+// import "./tasks/accounts.js"; // TODO: Update task API for Hardhat v3
+// import "./tasks/lock.js"; // TODO: Update task API for Hardhat v3
 
 // Load environment variables from .env file
 dotenvConfig();
@@ -26,9 +26,9 @@ function validateRequiredVar(name: string, value: string): string {
 }
 
 // Support both mnemonic and private key for deployment
-const mnemonic: string | undefined = vars.get("MNEMONIC");
-const deployerPrivateKey: string | undefined = vars.get("DEPLOYER_PRIVATE_KEY");
-const infuraApiKey: string = validateRequiredVar("INFURA_API_KEY", vars.get("INFURA_API_KEY"));
+const mnemonic: string | undefined = process.env.MNEMONIC; // TODO: Update for Hardhat v3 vars
+const deployerPrivateKey: string | undefined = process.env.DEPLOYER_PRIVATE_KEY; // TODO: Update for Hardhat v3 vars
+const infuraApiKey: string = validateRequiredVar("INFURA_API_KEY", process.env.INFURA_API_KEY || ""); // TODO: Update for Hardhat v3 vars
 
 // Validate that either mnemonic or deployer private key is provided
 if (!mnemonic && !deployerPrivateKey) {
@@ -75,9 +75,9 @@ const chainsConfiguration: HardhatNetworkChainsUserConfig = Object.values(AllCha
 
 const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
-  namedAccounts: {
-    deployer: 0,
-  },
+  // namedAccounts: { // TODO: Re-enable when hardhat-deploy is compatible with v3
+  //   deployer: 0,
+  // },
   etherscan: getExplorerConfiguration(),
   gasReporter: {
     currency: "USD",
@@ -91,6 +91,7 @@ const config: HardhatUserConfig = {
 
     // Special handling for hardhat network with conditional forking
     hardhat: {
+      type: 'edr-simulated', // Required for Hardhat v3 - use simulated for both local and forking
       chainsConfiguration, // necessary for functional network forking for some reason?
       accounts: deployerPrivateKey
         ? [
@@ -105,7 +106,11 @@ const config: HardhatUserConfig = {
           ]
         : { mnemonic: mnemonic! },
       chainId: enableForking ? (forkChain! as number) : (AllChainIds.HARDHAT as number),
-      forking: enableForking ? getForkChainConfig(forkChain!, infuraApiKey) : undefined,
+      forking: enableForking ? {
+        url: getForkChainConfig(forkChain!, infuraApiKey).url,
+        blockNumber: getForkChainConfig(forkChain!, infuraApiKey).blockNumber,
+        enabled: true
+      } : undefined,
     } as HardhatNetworkUserConfig,
   },
   paths: {

@@ -7,7 +7,7 @@ import {
   customRpcUrls,
   infuraSupportedChains,
   isValidChainId,
-} from "./chains";
+} from "./chains.js";
 
 // Fork block numbers to block pin at (optional)
 const forkBlockNumbers: Partial<Record<SupportedChainId, number>> = {
@@ -52,6 +52,7 @@ function getChainConfig(
       };
 
   return {
+    type: 'http', // Required for Hardhat v3
     accounts,
     chainId: chainId as number, // Cast SupportedChainId to number for Hardhat compatibility
     url: jsonRpcUrl,

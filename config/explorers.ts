@@ -1,6 +1,6 @@
-import { vars } from "hardhat/config";
+// import { vars } from "hardhat/config"; // TODO: Update for Hardhat v3
 
-import { AllChainIds, SupportedChainId, chainNames } from "./chains";
+import { AllChainIds, SupportedChainId, chainNames } from "./chains.js";
 
 // Explorer provider system interfaces
 type ExplorerType = "etherscan-v2" | "blockscout" | "routescan";
@@ -95,7 +95,7 @@ const explorerApiKeys: Record<string, string> = Object.entries(chainNames).reduc
     if (providerKeys.length > 0) {
       const provider = explorerProviders[providerKeys[0]];
       if (provider.requiresApiKey && provider.apiKeyVar) {
-        keys[networkName] = vars.get(provider.apiKeyVar, "");
+        keys[networkName] = process.env[provider.apiKeyVar] || ""; // TODO: Update for Hardhat v3 vars
       } else {
         keys[networkName] = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"; // Dummy key for non-requiring APIs
       }

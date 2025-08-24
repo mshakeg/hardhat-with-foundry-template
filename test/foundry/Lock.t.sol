@@ -66,8 +66,8 @@ contract LockTest is Test {
 
     // Switch to other account
     vm.prank(otherAccount);
-    // OpenZeppelin's OwnableUnauthorizedAccount error
-    vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, otherAccount));
+    // Simple require error message
+    vm.expectRevert("Not the owner");
     lock.withdraw();
   }
 
