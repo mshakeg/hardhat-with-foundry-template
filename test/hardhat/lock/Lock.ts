@@ -3,6 +3,7 @@ import { loadFixture, time } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
+import { getNetworkDescription } from "../../../config/network-helpers";
 import type { Signers } from "../types";
 import { deployLockFixture } from "./Lock.fixture";
 
@@ -12,6 +13,8 @@ describe("Lock", function () {
 
     const signers = await ethers.getSigners();
     this.signers.admin = signers[0];
+
+    console.log(await getNetworkDescription());
 
     this.loadFixture = loadFixture;
   });

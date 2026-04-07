@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import "forge-std/Test.sol";
-import "forge-std/console.sol";
+import { Test } from "forge-std/Test.sol";
+import { console } from "forge-std/console.sol";
 import { Lock, InvalidUnlockTime, UnlockTimeNotReached } from "../../contracts/Lock.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -35,17 +35,17 @@ contract LockTest is Test {
     new Lock{ value: 1 ether }(pastTime);
   }
 
-  function test_SetRightUnlockTime() public {
+  function test_SetRightUnlockTime() public view {
     // Should set the right unlockTime
     assertEq(lock.unlockTime(), unlockTime);
   }
 
-  function test_SetRightOwner() public {
+  function test_SetRightOwner() public view {
     // Should set the right owner
     assertEq(lock.owner(), owner);
   }
 
-  function test_ReceiveAndStoreFunds() public {
+  function test_ReceiveAndStoreFunds() public view {
     // Should receive and store the funds to lock
     assertEq(address(lock).balance, lockedAmount);
   }

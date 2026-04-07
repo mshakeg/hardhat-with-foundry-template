@@ -29,8 +29,6 @@ evm_version = "paris"
 # Gas reports
 gas_reports = ["*"]
 
-forge_version = ">=1.4.4"
-
 # Soldeer configuration
 [soldeer]
 remappings_generate = true
